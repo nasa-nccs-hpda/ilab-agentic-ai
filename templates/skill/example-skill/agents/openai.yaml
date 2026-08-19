@@ -1,0 +1,4 @@
+interface:
+  display_name: "Example Skill"
+  short_description: "Copyable example for an ILAB agent skill"
+  default_prompt: "Use $example-skill to show me how a focused ILAB skill is structured."
