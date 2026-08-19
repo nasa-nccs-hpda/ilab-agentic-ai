@@ -1,0 +1,29 @@
+name: Skill request
+description: Propose a repeatable capability for an agent.
+title: "[Skill]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What should the agent accomplish?
+      description: Describe a concrete outcome rather than a broad topic.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example requests
+      description: Provide two or three realistic requests that should trigger the skill.
+    validations:
+      required: true
+  - type: textarea
+    id: resources
+    attributes:
+      label: Required knowledge, tools, or data
+      description: Include access restrictions and known dependencies.
+  - type: input
+    id: owner
+    attributes:
+      label: Suggested owner

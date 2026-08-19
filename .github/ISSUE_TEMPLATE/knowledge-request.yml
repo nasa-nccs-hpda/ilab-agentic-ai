@@ -1,0 +1,23 @@
+name: Knowledge request
+description: Request new or improved project or shared knowledge.
+title: "[Knowledge]: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What information is needed?
+      description: Describe the question, missing context, or recurring confusion.
+    validations:
+      required: true
+  - type: input
+    id: project
+    attributes:
+      label: Project or audience
+      description: Identify who will use this information.
+  - type: textarea
+    id: sources
+    attributes:
+      label: Suggested owners or sources
+      description: Link authoritative material or identify a subject-matter expert if known.
