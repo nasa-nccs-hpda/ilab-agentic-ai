@@ -90,3 +90,31 @@ outputs stripped.
   silently affected reported metrics for a period of time (see
   `knowledge/troubleshooting/`); any number from before the listed fix date
   should be treated as unreliable, not just outdated.
+
+## Future work
+
+Two lines of work were started or scoped but not completed before shelving.
+Neither is represented in `examples/` -- there are no validated results to
+show for either yet.
+
+- **Super-resolution (2 km -> 250 m).** Notebook `9` builds a pipeline to
+  downscale 2 km VCF predictions to MODIS VCF's native 250 m, using MODIS
+  VCF Collection 6 (2020) as a guide raster via a Fast Guided Filter
+  implementation. It includes region-stratified train/test tile splitting
+  (guide and evaluation tiles drawn from distinct geographic regions, not
+  just distinct pixels) and a non-circular checkerboard-holdout validation
+  design (guide and held-out test pixels interleaved within the same tile,
+  so the guided filter isn't evaluated on the same pixels it was tuned
+  against), with a hyperparameter search over guide-filter radius/epsilon
+  restricted to guide tiles only. **Motivation:** for future years with no
+  real MODIS VCF product to compare against (e.g. 2026), a downscaling model
+  calibrated on years that do have MODIS VCF could produce a
+  MODIS-VCF-*like* 250 m product from this project's 2 km predictions. The
+  pipeline is built but has not been run end-to-end for real -- validating
+  it (and deciding whether the checkerboard design generalizes across
+  biomes) is the concrete next step if this line of work resumes.
+- **Experiment 5 (vision foundation model fine-tuning, DINOv2/v3).** Never
+  started; see the roadmap table above.
+
+Of the two, the super-resolution pipeline is further along and would likely
+be faster to validate.
