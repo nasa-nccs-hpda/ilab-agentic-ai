@@ -15,3 +15,4 @@ Start information here when it is useful to one project or has not yet demonstra
 ## Projects
 
 - [IMVI](imvi/README.md)
+- [PACE-VCF](PACE-VCF/README.md)
