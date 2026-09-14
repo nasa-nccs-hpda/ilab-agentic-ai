@@ -1,0 +1,31 @@
+name: pace-vcf
+description: >
+  Assess whether PACE-OCI hyperspectral surface reflectance -- plus AlphaEarth
+  Foundations embeddings and deep-learning baselines -- can produce a
+  Vegetation Continuous Fields (percent tree cover) product competitive with
+  the MODIS VCF (MOD44B) methodology.
+status: shelved
+owners:
+  - Melanie Frost
+models:
+  - knowledge/models/xgboost-monte-carlo-feature-selection.md
+  - knowledge/models/three-model-comparison.md
+skills: []
+knowledge:
+  - knowledge/overview/project-overview.md
+  - knowledge/datasets/pace-oci-surface-reflectance.md
+  - knowledge/datasets/viirs-vnp21a2-lst.md
+  - knowledge/datasets/modis-vcf-mod44b.md
+  - knowledge/datasets/alphaearth-foundations-embeddings.md
+  - knowledge/algorithms/altsort-phenology-metrics.md
+  - knowledge/algorithms/scaling-conventions-and-nan-handling.md
+  - knowledge/algorithms/two-r2-definitions.md
+  - knowledge/troubleshooting/scale-thermal-diff-regression.md
+  - knowledge/troubleshooting/inference-model-feature-mismatch.md
+  - knowledge/troubleshooting/test-set-leakage-in-monte-carlo-selection.md
+  - knowledge/troubleshooting/orphaned-metrics-list-bug.md
+  - knowledge/troubleshooting/user-site-pip-install-environment-contamination.md
+  - knowledge/troubleshooting/matplotlib-agg-backend-silent-plot-failure.md
+  - knowledge/troubleshooting/earth-engine-pixel-ceiling-dead-end.md
+integrations: []
+agents: []
