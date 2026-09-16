@@ -12,6 +12,7 @@ colleague's separate, non-public package.
 
 | Notebook | What it shows |
 | --- | --- |
+| `notebooks/1_Data_download.ipynb` | Pipeline entry point: downloads PACE-OCI L3m surface reflectance and VIIRS thermal data via `earthaccess` (interactive Earthdata login, no embedded credentials). |
 | `notebooks/1d_check_geo_resolution.ipynb` | Verifies geospatial alignment/resolution consistency between the PACE and MODIS processing grids. |
 | `notebooks/2e_composite_aggregate_daily.ipynb` | Most recent composite-generation notebook (32-day composites from daily PACE/VIIRS input). |
 | `notebooks/3l_metrics_thermal_diff_fix.ipynb` | Canonical metrics-generation notebook (MODIS-equivalent, PACE hyperspectral, AltSort phenology-sorted, thermal, snow-aware metrics). Includes the fix described in `knowledge/troubleshooting/scale-thermal-diff-regression.md`. |
@@ -28,3 +29,13 @@ colleague's separate, non-public package.
 See `knowledge/overview/project-overview.md` for how these fit into the full
 notebook lineage (the `9`/`10` super-resolution and spatial-comparison
 notebooks are not included here).
+
+## Other data
+
+- `feature_importance.txt` -- top-30/top-50 feature importance rankings
+  (rank, feature, model, feature-source style, band/index) across all five
+  models compared in this project (`C6-Modis_Legacy`, `XGBoost_Legacy`,
+  `XGBoost_Chipped`, the CNN/MLP/Transformer chipped models). This is the
+  underlying data behind `notebooks/8a_feature_comparison.ipynb`'s bump
+  chart -- useful on its own if you want the raw rankings without
+  regenerating the plot.
