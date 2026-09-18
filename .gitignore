@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+*.tgz
+*.nc
+*.o
+*.a
+projects/imvi/_modelE2_planet_2.0/prod_input_files/
+projects/imvi/socrates_1710.tar.xz
+projects/imvi/socrates_1710.tar.xz.1
+projects/imvi/spectral_files.tgz.1
+projects/imvi/stellar_spectra.tgz.1
+projects/imvi/_modelE2_planet_2.0/ModelE_Support/prod_input_files/
+projects/imvi/_modelE2_planet_2.0/ModelE_Support/huge_space/
