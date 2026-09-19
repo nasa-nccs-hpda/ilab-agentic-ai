@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Downloaded NetCDF data caches (can grow to GBs)
+rocke3d_cache/
+
 # C extensions
 *.so
 
