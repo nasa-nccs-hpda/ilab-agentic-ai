@@ -12,6 +12,7 @@ colleague's separate, non-public package.
 
 | Notebook | What it shows |
 | --- | --- |
+| `notebooks/1_Data_download.ipynb` | Pipeline entry point: downloads PACE-OCI L3m surface reflectance and VIIRS thermal data via `earthaccess` (interactive Earthdata login, no embedded credentials). |
 | `notebooks/1d_check_geo_resolution.ipynb` | Verifies geospatial alignment/resolution consistency between the PACE and MODIS processing grids. |
 | `notebooks/2e_composite_aggregate_daily.ipynb` | Most recent composite-generation notebook (32-day composites from daily PACE/VIIRS input). |
 | `notebooks/3l_metrics_thermal_diff_fix.ipynb` | Canonical metrics-generation notebook (MODIS-equivalent, PACE hyperspectral, AltSort phenology-sorted, thermal, snow-aware metrics). Includes the fix described in `knowledge/troubleshooting/scale-thermal-diff-regression.md`. |
@@ -23,8 +24,19 @@ colleague's separate, non-public package.
 | `notebooks/6zh_pace_train_chips_alpha.ipynb` | Same as above, with AlphaEarth embeddings added. |
 | `notebooks/7g_inference_C6_xgboost_legacy_subset.ipynb` | Inference + comparison against MODIS VCF Collection 6, run on a small tile subset with isolated output. |
 | `notebooks/8a_feature_comparison.ipynb` | Cross-model feature-importance bump chart, filtered to features shared across multiple models. |
+| `notebooks/9a_superresolution_test.ipynb` | Super-resolution via guided filter and residual/ratio injection (2 km -> 250 m). See `knowledge/models/super-resolution-2km-to-250m.md` for results -- neither method recovers real detail. |
+| `notebooks/9b_superresolution_alphaearth_regression.ipynb` | Super-resolution via AlphaEarth-embedding regression -- no same-tile guide needed. The one super-resolution method that visibly recovers real fine-scale detail; see the same results doc. |
 | `notebooks/11_test_holdout_r2_all_models.ipynb` | The three-model (XGBoost / Spatial-CNN / Pixel-Transformer) true 15%-holdout comparison; see `knowledge/models/three-model-comparison.md`. |
 
 See `knowledge/overview/project-overview.md` for how these fit into the full
-notebook lineage (the `9`/`10` super-resolution and spatial-comparison
-notebooks are not included here).
+notebook lineage (the `10` spatial-comparison notebook is not included here).
+
+## Other data
+
+- `feature_importance.txt` -- top-30/top-50 feature importance rankings
+  (rank, feature, model, feature-source style, band/index) across all five
+  models compared in this project (`C6-Modis_Legacy`, `XGBoost_Legacy`,
+  `XGBoost_Chipped`, the CNN/MLP/Transformer chipped models). This is the
+  underlying data behind `notebooks/8a_feature_comparison.ipynb`'s bump
+  chart -- useful on its own if you want the raw rankings without
+  regenerating the plot.
