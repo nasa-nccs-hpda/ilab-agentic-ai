@@ -10,6 +10,7 @@ owners:
 models:
   - knowledge/models/xgboost-monte-carlo-feature-selection.md
   - knowledge/models/three-model-comparison.md
+  - knowledge/models/super-resolution-2km-to-250m.md
 skills: []
 knowledge:
   - knowledge/overview/project-overview.md
@@ -27,5 +28,9 @@ knowledge:
   - knowledge/troubleshooting/user-site-pip-install-environment-contamination.md
   - knowledge/troubleshooting/matplotlib-agg-backend-silent-plot-failure.md
   - knowledge/troubleshooting/earth-engine-pixel-ceiling-dead-end.md
+  - knowledge/troubleshooting/box-filter-nan-poisoning.md
+  - knowledge/troubleshooting/non-atomic-checkpoint-writes.md
+  - knowledge/troubleshooting/xgboost-gpu-tree-method-and-arch-mismatch.md
+  - knowledge/troubleshooting/unweighted-vs-pixel-weighted-rmse.md
 integrations: []
 agents: []

@@ -68,7 +68,10 @@ outputs stripped.
 - `6h`/`6zg` -- legacy (tabular) training, without/with AlphaEarth
 - `6g`/`6zh` -- chips training, without/with AlphaEarth
 - `7a`...`7g` -- inference and MODIS-VCF comparison
-- `9` -- experimental super-resolution (2 km -> 250 m, MODIS-VCF-guided)
+- `9a` -- super-resolution: guided filter and residual/ratio injection
+  (2 km -> 250 m, MODIS-VCF-guided)
+- `9b` -- super-resolution: AlphaEarth-embedding regression downscaling
+  (no same-tile guide needed)
 - `10`/`11` -- three-model comparison (spatial 5-tile R², then true
   15%-holdout R²)
 
@@ -91,30 +94,41 @@ outputs stripped.
   `knowledge/troubleshooting/`); any number from before the listed fix date
   should be treated as unreliable, not just outdated.
 
+## Super-resolution (2 km -> 250 m)
+
+Explored as a post-processing step, not part of the main VCF prediction
+task: can this project's 2 km predictions be downscaled to MODIS VCF's
+native 250 m for a future year with no real MODIS VCF to compare against at
+all? Three methods were tried and compared. **Two guide-based texture
+methods (a guided filter and residual/ratio injection) don't recover real
+fine-scale detail and barely or don't beat naive upsampling; a
+fine-resolution regression using AlphaEarth embeddings does recover real
+detail (visually confirmed) and generalizes to unseen tiles, at roughly
+8.8-8.9% RMSE vs. a 9.71% plain-upsample baseline.** Full methodology,
+numbers, and comparison figures: `knowledge/models/super-resolution-2km-to-250m.md`.
+
+Several real bugs were found and fixed along the way, each with its own
+write-up: a NaN-propagation bug that silently poisoned up to 99% of some
+tiles' output (`knowledge/troubleshooting/box-filter-nan-poisoning.md`), a
+non-atomic checkpoint write that let a crash masquerade as a completed
+result (`knowledge/troubleshooting/non-atomic-checkpoint-writes.md`), two
+unrelated GPU/XGBoost failures
+(`knowledge/troubleshooting/xgboost-gpu-tree-method-and-arch-mismatch.md`),
+and a naive-average-vs-pixel-weighted-RMSE reporting error
+(`knowledge/troubleshooting/unweighted-vs-pixel-weighted-rmse.md`).
+
 ## Future work
 
-Two lines of work were started or scoped but not completed before shelving.
-Neither is represented in `examples/` -- there are no validated results to
-show for either yet.
+One line of work was scoped but never started before shelving:
 
-- **Super-resolution (2 km -> 250 m).** Notebook `9` builds a pipeline to
-  downscale 2 km VCF predictions to MODIS VCF's native 250 m, using MODIS
-  VCF Collection 6 (2020) as a guide raster via a Fast Guided Filter
-  implementation. It includes region-stratified train/test tile splitting
-  (guide and evaluation tiles drawn from distinct geographic regions, not
-  just distinct pixels) and a non-circular checkerboard-holdout validation
-  design (guide and held-out test pixels interleaved within the same tile,
-  so the guided filter isn't evaluated on the same pixels it was tuned
-  against), with a hyperparameter search over guide-filter radius/epsilon
-  restricted to guide tiles only. **Motivation:** for future years with no
-  real MODIS VCF product to compare against (e.g. 2026), a downscaling model
-  calibrated on years that do have MODIS VCF could produce a
-  MODIS-VCF-*like* 250 m product from this project's 2 km predictions. The
-  pipeline is built but has not been run end-to-end for real -- validating
-  it (and deciding whether the checkerboard design generalizes across
-  biomes) is the concrete next step if this line of work resumes.
 - **Experiment 5 (vision foundation model fine-tuning, DINOv2/v3).** Never
   started; see the roadmap table above.
 
-Of the two, the super-resolution pipeline is further along and would likely
-be faster to validate.
+For super-resolution specifically, the concrete next step if this resumes
+is building on the AlphaEarth-regression approach rather than the
+guide-based methods (see the recommendation at the end of
+`knowledge/models/super-resolution-2km-to-250m.md`) -- in particular, a
+light spatial-smoothing pass to address its visible pixel-level speckle,
+and re-evaluating it under the same within-tile checkerboard design used
+for the other two methods so all three are compared on identical evaluation
+designs, not just identical tiles.
