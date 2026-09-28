@@ -93,6 +93,19 @@ outputs stripped.
   silently affected reported metrics for a period of time (see
   `knowledge/troubleshooting/`); any number from before the listed fix date
   should be treated as unreliable, not just outdated.
+- PACE-OCI's optical coverage drops sharply near the poles. Confirmed via
+  `QA_ObsCount-Optical-Total` (valid composites out of 12/year) across three
+  tile pairs: the northernmost row of the MODIS sinusoidal grid (v00, roughly
+  80-90N) averages ~2.4-3.2 valid composites, versus ~6.4-6.5 one row further
+  from the pole (v01, ~70-80N) -- roughly half. This is a real physical
+  limit (seasonal polar night plus low sun angle, both fatal to a
+  reflectance-based sensor), not a pipeline bug. Practical effect: a narrow,
+  conditional metric that needs several already-sparse signals to align
+  (e.g. a temperature-gated NDVI statistic) can legitimately come up 0%
+  valid for an entire v00 tile even though the tile has some real data --
+  don't mistake that for the all-tile, always-0% signature of a scaling bug
+  (see `knowledge/troubleshooting/scale-thermal-diff-regression.md` for
+  what that actually looks like).
 
 ## Super-resolution (2 km -> 250 m)
 
