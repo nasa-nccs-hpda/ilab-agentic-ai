@@ -74,6 +74,21 @@ Practical lessons from building and running agentic AI workflows on ILAB/ADAPT.
   - Claude: https://docs.claude.com/en/docs/about-claude/models/overview
   - Codex: https://developers.openai.com/codex/models
 - Models available through the NMC AI Hub or ChatGSFC may differ from these lists.
+- Another option is to let the **agent automatically select the model based on the complexity of each task** instead of using the most capable model for everything.
+
+For example, Claude Sonnet can handle most routine coding work, while Claude Opus can be reserved for tasks that require deeper reasoning.
+
+| Use **Sonnet** for | Use **Opus** for |
+| --- | --- |
+| Writing or modifying individual functions | Designing a new algorithm or approach |
+| Routine bug fixes with clear error messages | Difficult debugging where the root cause is unclear |
+| Notebook edits and data-processing scripts | Debugging across multiple modules or languages |
+| Adding tests for existing code | Designing a validation or testing strategy |
+| Code cleanup and small refactors | Large architectural refactors |
+| Documentation and code comments | Architecture and design reviews |
+| Straightforward Fortran-to-C++/CUDA translation | Deciding how to restructure Fortran/C++/CUDA interaction |
+| Running established workflows and analyzing standard output | Interpreting unexpected numerical or performance behavior |
+| Simple performance tuning | Complex GPU optimization, memory-layout, or scaling problems |
 
 ---
 
