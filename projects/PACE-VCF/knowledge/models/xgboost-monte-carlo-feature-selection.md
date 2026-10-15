@@ -92,3 +92,29 @@ matters at that stage, not final accuracy.
 Per-tile performance varies by biome (see `knowledge/datasets/modis-vcf-mod44b.md`
 for the reasons). See `knowledge/algorithms/two-r2-definitions.md` before
 comparing these numbers to results reported elsewhere in this project.
+
+## Chips variant on metrics v4 (October 2026)
+
+The chips variant (notebook `6j_pace_train_chips_v4.ipynb`) was re-run on the
+v4 training chips: 475 candidate bands, 5,000 trials of 50 random bands, top
+50 kept. Tree cover, the notebook's own **pixel-level** 70/15/15 split,
+squared Pearson R²:
+
+| Model | Test R² | Test RMSE |
+| --- | --- | --- |
+| All 475 bands | 0.977 | 4.17 |
+| Monte Carlo top 50 | 0.966 | 5.14 |
+
+Across the 5,000 trials R² was 0.962 ± 0.002 (0.954-0.966): with this many
+redundant bands, almost any 50 random bands do well. The top 50 is led by
+Band 1 (red) composites (`Lowest3MeanBandRefl-Band_1`,
+`Greenest3MeanBandRefl-Band_1`) and Band 7; 18 of the 50 are PACE indices,
+with `PACEIndex-CCI-Highest3Mean` the highest-ranked (10th) and five REP
+bands. It is nearly identical to the v3 list (47 of 50 the same, two of the
+three differences being renames).
+
+**Caveat:** the split is by pixel, so validation and test pixels come from the
+same chips as training pixels and score almost identically. These numbers are
+optimistic relative to the chip-level split used in
+`knowledge/models/three-model-comparison.md`; compare the two only with that
+in mind.

@@ -7,6 +7,65 @@ and a Pixel-Transformer. This note covers how a genuinely comparable metric
 was produced across all three, since none of them had one in a mutually
 comparable form as trained.
 
+## Current results: metrics v4 (October 2026)
+
+The three models were retrained on the v4 metrics (475 bands; see
+`knowledge/algorithms/metrics-v4-definitions-and-duplicate-bands.md`) with
+the colleague's code and settings unchanged: 30 epochs, Huber loss, batch 4
+for the neural models; XGBoost 500 trees, depth 10, learning rate 0.1, early
+stopping 30, one booster per target, on GPU. Same 504 chips and the same
+seed-7 70/15/15 chip-level split (353 / 76 / 75 chips). **Tree cover only.**
+
+**Chip-level test scores** (75 test chips, 287,332 pixels; R² here is the
+coefficient of determination):
+
+| Model | All 475 bands, seed 7: RMSE (R²) | All bands, 5 model seeds: RMSE mean ± sd | Final model (own consensus top 100): RMSE (R²) |
+| --- | --- | --- | --- |
+| XGBoost | 4.51 (0.962) | 4.49 ± 0.02 | 4.56 (0.961) |
+| Spatial-CNN | 5.80 (0.938) | 5.71 ± 0.10 | 5.83 (0.937) |
+| Pixel-Transformer | 6.11 (0.931) | 6.17 ± 0.07 | 6.37 (0.925) |
+
+- XGBoost is ahead of both neural models, as in v2.
+- Removing the duplicate bands cost nothing: XGBoost's v4 scores match v3 to
+  within 0.01 RMSE; the neural changes are within their seed spread.
+- The final models use each model's own consensus top-100 bands from the
+  multi-seed study (`multi-seed-ranking-stability.md`; band count from
+  `band-count-sweep.md`). The Spatial-CNN final is the best of six 100-band
+  runs **on the validation chips** (see
+  `knowledge/troubleshooting/single-run-final-model-unlucky-draw.md`).
+- The chip split is by chip, not by tile, so most tiles have chips in both
+  training and test: chip scores are optimistic. Use them to compare
+  variants, not as absolute accuracy.
+
+**Full-tile scores** (2 km maps from the three final models, scored against
+MODIS VCF C6 2020 tree cover; 280 tiles, 38.6 M pixels with a valid label
+and real inputs for every model; **r² here is squared Pearson**, pooled RMSE
+is pixel-weighted):
+
+| Model | Pooled RMSE | Pooled bias | Median tile r² |
+| --- | --- | --- | --- |
+| XGBoost (v4 final) | 6.76 | +0.41 | 0.681 |
+| Pixel-Transformer (v4 final) | 7.39 | +0.44 | 0.637 |
+| Spatial-CNN (v4 final) | 7.55 | -0.79 | 0.656 |
+
+- Full-tile scores are far below chip scores for every model: full tiles
+  cover the globe, mostly away from the training chips.
+- On identical pixels, the v4 XGBoost equals the earlier versions (v3 final
+  6.74; on the 251 tiles every version covers, v4 6.90 vs the shelved-era
+  chipped XGBoost 6.90). The v4 transformer is better than v3 (7.39 vs 7.58);
+  the v4 Spatial-CNN is worse than v3 (7.55 vs 7.22) and under-predicts tree
+  cover -- an open question (see `knowledge/overview/project-overview.md`,
+  Future work).
+- Pixels where a model's inputs were mostly missing are excluded; see
+  `knowledge/troubleshooting/median-imputed-pixels-in-full-tile-scoring.md`.
+- 289 of 291 tiles have maps; two polar tiles are refused
+  (`knowledge/troubleshooting/polar-tiles-empty-bands.md`); 9 more have no
+  scorable pixels.
+
+Everything below this point describes the shelved-era (v2) comparison and
+how a comparable metric was first built; its numbers predate the v3/v4
+metric fixes.
+
 ## The comparability problem
 
 - The two Lightning-trained models (Spatial-CNN, Pixel-Transformer) only had
@@ -49,7 +108,7 @@ Code that instead fell back to generic `band_1`/`band_2`/`band_3` labels
 would have been correct numerically but mislabeled which VCF output each
 number belongs to.
 
-## Results
+## Results (v2, historical)
 
 Target bands: `Percent_Tree_Cover`, `Percent_NonTree_Vegetation`,
 `Percent_NonVegetated`.
