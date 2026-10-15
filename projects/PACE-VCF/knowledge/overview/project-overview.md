@@ -17,18 +17,38 @@ set of discrete spectral bands.
 - Pigment indices (CCI, PRI, mARI) capture physiological vegetation state
   beyond what NDVI alone reflects.
 
-## Experiment roadmap and final status
+## Experiment roadmap and status
 
 | # | Experiment | Status | Result |
 | --- | --- | --- | --- |
-| 1 | MODIS-methodology baseline (Random Forest, MODIS-equivalent metrics only) | Complete | Established baseline R²/RMSE/MAE |
-| 2 | MODIS + PACE hyperspectral metrics (XGBoost + Monte Carlo feature selection) | Complete | Full-model R² ~0.80, MC (50-feature) model R² ~0.76; REIP identified as the top predictor |
-| 3 | Deep learning (Spatial-CNN, Pixel-Transformer) on chip-tiled data | Complete, compared against Exp. 2's XGBoost | See `knowledge/models/three-model-comparison.md` |
-| 4 | PACE + AlphaEarth Foundations embeddings | Complete (pipeline validated, integrated into training) | See `knowledge/datasets/alphaearth-foundations-embeddings.md` |
-| 5 | Vision foundation model fine-tuning (DINOv2/v3) | Not started | Out of scope for this shelving point |
+| 1 | MODIS-methodology baseline (Random Forest, MODIS-equivalent metrics only) | Complete (v2 metrics) | Established baseline R²/RMSE/MAE |
+| 2 | MODIS + PACE hyperspectral metrics (XGBoost + Monte Carlo feature selection) | Complete (v2 metrics); re-run on v4 | v2: full-model R² ~0.80, MC (50-feature) model R² ~0.76. v4: see `knowledge/models/xgboost-monte-carlo-feature-selection.md` |
+| 3 | Deep learning (Spatial-CNN, Pixel-Transformer) on chip-tiled data | Complete; redone on v4 metrics | See `knowledge/models/three-model-comparison.md` |
+| 4 | PACE + AlphaEarth Foundations embeddings | Complete (v2 metrics; pipeline validated, integrated into training) | See `knowledge/datasets/alphaearth-foundations-embeddings.md` |
+| 5 | Vision foundation model fine-tuning (DINOv2/v3) | Not started | -- |
+| 6 | Metrics v3: sort and scaling fixes | Complete | Changed feature rankings far more than accuracy (red edge returned to the rankings once saturated REP/REIP bands were fixed) |
+| 7 | Metrics v4: duplicate bands removed, metrics redefined to their original intent | Complete (October 2026) | `knowledge/algorithms/metrics-v4-definitions-and-duplicate-bands.md` |
+| 8 | v4 model study: band-count sweep, multi-seed ranking stability, MODIS-only vs PACE-only, final models, global 2 km maps | Complete (October 2026) | `knowledge/models/band-count-sweep.md`, `multi-seed-ranking-stability.md`, `modis-vs-pace-band-contribution.md`, `three-model-comparison.md` |
 
-The project is being shelved at this point to write up results. Experiment 5
-was never started; if the project resumes, it's the natural next step.
+The project was shelved for write-up after Experiment 4 and resumed in
+September/October 2026 to correct the metrics (v3, then v4) and redo Experiments 2-3
+on them. Experiment 5 is still the natural next modelling step.
+
+## Metrics versions
+
+The same 291 MODIS-VCF land tiles and the same composites underlie every
+version; only the metrics computed from them change. Each version is a
+separate output folder (`3-Metrics/`, `3-Metrics-v3/`, `3-Metrics-v4/`), and
+models trained on one version cannot read another (band lists differ).
+
+| Version | Bands used in training | What changed |
+| --- | --- | --- |
+| v2 | 521 | The shelved-era metrics. 100 of the 521 bands turned out to be exact copies of others. |
+| v3 | 521 | Sort and scaling fixes (a cross-sort bug that made CCI "3-mean" metrics byte-identical copies; saturated REP/REIP bands). Same band names as v2. |
+| v4 | 475 | Duplicates removed; amplitude and median metrics computed as their names describe; some bands renamed. See the v4 algorithm note. |
+
+"Bands used in training" excludes the `Unsorted` (calendar) and `QA_` bands,
+as in the colleague's chipping code.
 
 ## Data flow
 
@@ -55,6 +75,23 @@ Two parallel training data representations exist:
   also re-used for a chip-based XGBoost baseline so the three-model
   comparison in Experiment 3 is apples-to-apples.
 
+From v3 on, the chip pipeline is a colleague's chipping, training,
+XAI and full-tile inference packages, called in place and unchanged; this
+project adds launchers, checks and comparisons around them:
+
+```text
+3-Metrics-v4/ (291 tiles)
+   |-- chips: 504 chips from 63 training tiles, 475 bands, seed-7 70/15/15 chip split
+   |      |-- train all bands (3 models) -> XAI -> band-count sweep
+   |      |-- multi-seed study (5 seeds) -> consensus top-100 band lists
+   |      `-- final models (consensus top 100 each)
+   `-- full-tile stacks (input_stack_2km.tif per tile, 475 bands, chip band order)
+          `-- global inference with the final models -> 2 km tree-cover maps
+                 `-- comparison against MOD44B on pixels with real inputs
+```
+
+How to run it on NCCS: `skills/run-pace-vcf-pipeline/`.
+
 ## Notebook families (private repo)
 
 The numbering below reflects the private `PACE_VCF` repository's history, not
@@ -76,6 +113,29 @@ outputs stripped.
   15%-holdout R²)
 
 ## Key findings
+
+v4 (current; details in the linked pages):
+
+- **Adding the PACE-derived metrics to the MODIS-equivalent ones improves
+  every model**, by more than run-to-run noise: tree-cover RMSE drops 6%
+  (XGBoost), 8% (Spatial-CNN) and 16% (Pixel-Transformer). Either group alone
+  gets most of the way -- they are largely redundant
+  (`knowledge/models/modis-vs-pace-band-contribution.md`).
+- **XGBoost is the most accurate model** on chips and on full tiles, and it
+  rediscovers the classic MODIS VCF signal: about 63% of its importance is
+  Band 1 (red), mostly dormant-season composites. The neural models spread
+  importance over PACE red-edge, pigment and water indices.
+- **Neural band rankings from one training run are not reliable**; accuracy
+  is stable across seeds but the top-50 bands are not
+  (`knowledge/models/multi-seed-ranking-stability.md`). Interpret neural
+  feature importance by band group, not single bands.
+- **Removing the 100 duplicate bands (v4) cost nothing in accuracy** and
+  makes the rankings defensible.
+- Full-tile scores are far below chip scores for every model (chip test R²
+  ~0.92-0.96 vs full-tile median r² ~0.64-0.68): chips come from training
+  areas with a chip-level split, full tiles cover the globe.
+
+v2 (historical, shelved-era):
 
 - REIP (Red Edge Inflection Point) is consistently the top predictor across
   the tabular models.
@@ -118,6 +178,21 @@ and a naive-average-vs-pixel-weighted-RMSE reporting error
 (`knowledge/troubleshooting/unweighted-vs-pixel-weighted-rmse.md`).
 
 ## Future work
+
+Open items from the v4 work (October 2026):
+
+- **v4 Spatial-CNN on full tiles.** It is less accurate than the v3 CNN
+  globally (pooled RMSE 7.55 vs 7.22 on identical pixels) and now
+  under-predicts tree cover (bias -0.79), although its chip scores are
+  normal. A 100-band CNN varies a lot between training runs; an all-band CNN
+  is steadier. Not yet investigated.
+- **Tile-level evaluation.** The chip split puts chips from the same tile in
+  train and test, so chip scores are optimistic. A split by whole tile would
+  give a more honest held-out score.
+- **Feature importance by correlated-band group** rather than single bands,
+  which the multi-seed study suggests is the stable level of interpretation.
+- **Two polar tiles (h11v01, h24v01)** still get no map
+  (`knowledge/troubleshooting/polar-tiles-empty-bands.md`).
 
 One line of work was scoped but never started before shelving:
 

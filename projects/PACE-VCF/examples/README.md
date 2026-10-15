@@ -10,6 +10,16 @@ execute outside the original NCCS Explore environment: they reference
 GPU-specific XGBoost parameters, and (for the model-comparison notebook) a
 colleague's separate, non-public package.
 
+### Metrics v4 (current, October 2026)
+
+| Notebook | What it shows |
+| --- | --- |
+| `notebooks/3n_metrics_v4_no_duplicates.ipynb` | v4 metrics generation for one tile into a scratch folder (generated from `scripts/run_metrics_generation_v4.py` by `scripts/make_notebook_3n.py`): rank-based amplitude and median metrics, duplicate removal, renames, and checks. See `knowledge/algorithms/metrics-v4-definitions-and-duplicate-bands.md`. |
+| `notebooks/6j_pace_train_chips_v4.ipynb` | Chip-based XGBoost + Monte Carlo feature selection on the v4 training chips (5,000 trials). See the v4 section of `knowledge/models/xgboost-monte-carlo-feature-selection.md`. |
+| `notebooks/13_v4_final_model_tile_comparison.ipynb` | Full-tile comparison of the three v4 final models against MODIS VCF (per-tile maps and scatter plots; pooled scores on pixels with real inputs; v4 vs v3 and v2 on identical pixels). See `knowledge/models/three-model-comparison.md`. |
+
+### Shelved-era (v2) notebooks
+
 | Notebook | What it shows |
 | --- | --- |
 | `notebooks/1_Data_download.ipynb` | Pipeline entry point: downloads PACE-OCI L3m surface reflectance and VIIRS thermal data via `earthaccess` (interactive Earthdata login, no embedded credentials). |
@@ -40,3 +50,39 @@ notebook lineage (the `10` spatial-comparison notebook is not included here).
   underlying data behind `notebooks/8a_feature_comparison.ipynb`'s bump
   chart -- useful on its own if you want the raw rankings without
   regenerating the plot.
+- `feature_importance_v4_consensus.txt` -- the same format for the v4 final
+  models: the C6-Modis_Legacy top 30, then each model's consensus top 50 from
+  the five-seed study (`knowledge/models/multi-seed-ranking-stability.md`).
+  Style is MODIS or PACE (PACE = PACE_Metrics + PACE_AltSort_Metrics).
+  Tab-separated, CRLF line endings.
+
+## Scripts (metrics v4)
+
+`scripts/` holds the batch launchers and helpers used for the v4 run, as
+they were on NCCS Explore. They will not run elsewhere: they use internal
+paths, a project virtual environment, Slurm on NCCS, and call a colleague's
+non-public chip-training package in place (that package is **not** included).
+Every launcher makes a new timestamped output folder and refuses to overwrite.
+The run order and checks are in `skills/run-pace-vcf-pipeline/`.
+
+| Script | Purpose |
+| --- | --- |
+| `run_metrics_generation_v4.py`, `test_metrics_v4.py` | v4 metrics for one tile, and unit tests for the new rank-based metrics |
+| `launch_metrics_v4.sh`, `submit_metrics_v4.sbatch` | v4 metrics for all 291 tiles as independent 1-core CPU jobs (`status` mode to check) |
+| `make_notebook_3n.py` | builds notebook 3n from the v4 metrics script |
+| `chips_v3/version_config.sh` | maps `METRICS_VERSION` (v3 / v4) to chip run, model folder, stack folder and band count; read by every launcher |
+| `chips_v3/launch_chips_v3.sh`, `submit_chips_v3.sbatch`, `tile_indices.py`, `compare_chips.py` | training chips with the colleague's code (tiles by name), and the chip check |
+| `chips_v3/launch_training_v3.sh`, `train_model_v3.sbatch` | all-band training, three models, one GPU job each |
+| `chips_v3/launch_xai_v3.sh` | fuller integrated-gradients XAI for the neural models |
+| `chips_v3/launch_sweep_v3.sh`, `train_sweep_v3.sbatch`, `make_topn_lists.py` | band-count sweep |
+| `chips_v3/launch_seed_study_v3.sh`, `train_seed_v3.sbatch`, `train_init_seed.py`, `combine_seed_rankings.py` | multi-seed study (model seed varies, split fixed) and consensus rankings |
+| `chips_v3/launch_final_v3.sh`, `train_final_v3.sbatch` | final models (`CONSENSUS_DIR` = use the seed-study consensus lists) |
+| `chips_v3/launch_cnn_check_v3.sh` | the Spatial-CNN band-list check |
+| `chips_v3/launch_style_test_v3.sh` | MODIS-style only vs PACE-style only |
+| `chips_v3/eval_chip_models.py` | per-layer R² / RMSE for neural checkpoints on the val/test chips |
+| `launch_stacks_v4.sh`, `submit_stacks_v3.sbatch` | full-tile input stacks (475 bands, chip band order) |
+| `run_multi_model_inference.py`, `launch_inference_v3.sh`, `submit_inference_v3.sbatch` | global inference; v4 models are `--model all-v4` |
+| `plot_band_sweep.py` | band-count sweep figure (`--version v4`) |
+
+File names keep `_v3` from the version they were written for; the metrics
+version is a setting, not the file name.

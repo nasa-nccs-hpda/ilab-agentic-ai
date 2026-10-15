@@ -50,3 +50,18 @@ systematic bias separately.
 Before comparing two R² numbers from this project (or reporting one in a
 paper), confirm both were computed the same way. When in doubt, recompute
 both from raw predictions/targets rather than trusting a label.
+
+## Which definition the v4 pages use (October 2026)
+
+- Chip-level tables (`three-model-comparison.md` current section,
+  `band-count-sweep.md`, `multi-seed-ranking-stability.md`,
+  `modis-vs-pace-band-contribution.md`): **coefficient of determination**,
+  computed per layer on the validation/test chips.
+- Full-tile map comparisons against MODIS VCF (notebook 13 and the full-tile
+  table in `three-model-comparison.md`): **squared Pearson**, by the project
+  owner's choice, with non-finite values excluded and pooled RMSE weighted by
+  pixel count.
+- The Monte Carlo notebooks (`xgboost-monte-carlo-feature-selection.md`):
+  squared Pearson.
+
+Each table states its definition; don't compare across them.

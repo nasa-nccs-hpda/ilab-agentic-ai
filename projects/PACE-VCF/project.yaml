@@ -4,22 +4,28 @@ description: >
   Foundations embeddings and deep-learning baselines -- can produce a
   Vegetation Continuous Fields (percent tree cover) product competitive with
   the MODIS VCF (MOD44B) methodology.
-status: shelved
+status: active
 owners:
   - Melanie Frost
 models:
   - knowledge/models/xgboost-monte-carlo-feature-selection.md
   - knowledge/models/three-model-comparison.md
+  - knowledge/models/band-count-sweep.md
+  - knowledge/models/multi-seed-ranking-stability.md
+  - knowledge/models/modis-vs-pace-band-contribution.md
   - knowledge/models/super-resolution-2km-to-250m.md
-skills: []
+skills:
+  - skills/run-pace-vcf-pipeline
 knowledge:
   - knowledge/overview/project-overview.md
+  - knowledge/overview/agentic-workflow.md
   - knowledge/datasets/pace-oci-surface-reflectance.md
   - knowledge/datasets/viirs-vnp21a2-lst.md
   - knowledge/datasets/modis-vcf-mod44b.md
   - knowledge/datasets/alphaearth-foundations-embeddings.md
   - knowledge/algorithms/altsort-phenology-metrics.md
   - knowledge/algorithms/scaling-conventions-and-nan-handling.md
+  - knowledge/algorithms/metrics-v4-definitions-and-duplicate-bands.md
   - knowledge/algorithms/two-r2-definitions.md
   - knowledge/troubleshooting/scale-thermal-diff-regression.md
   - knowledge/troubleshooting/inference-model-feature-mismatch.md
@@ -32,5 +38,11 @@ knowledge:
   - knowledge/troubleshooting/non-atomic-checkpoint-writes.md
   - knowledge/troubleshooting/xgboost-gpu-tree-method-and-arch-mismatch.md
   - knowledge/troubleshooting/unweighted-vs-pixel-weighted-rmse.md
+  - knowledge/troubleshooting/median-imputed-pixels-in-full-tile-scoring.md
+  - knowledge/troubleshooting/split-seed-tied-to-model-seed.md
+  - knowledge/troubleshooting/single-run-final-model-unlucky-draw.md
+  - knowledge/troubleshooting/polar-tiles-empty-bands.md
+  - knowledge/troubleshooting/slurm-array-tasks-killed.md
+  - knowledge/troubleshooting/gdal-proj-data-write-failure.md
 integrations: []
 agents: []

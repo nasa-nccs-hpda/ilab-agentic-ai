@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run PACE-VCF pipeline"
+  short_description: "Run, check and resume the PACE-VCF tree-cover pipeline on NCCS Explore"
+  default_prompt: "Use $run-pace-vcf-pipeline to tell me where the PACE-VCF pipeline stands and what to run next."

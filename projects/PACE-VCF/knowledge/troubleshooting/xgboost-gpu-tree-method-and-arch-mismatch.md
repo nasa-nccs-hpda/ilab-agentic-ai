@@ -70,3 +70,11 @@ shared/fragile environment may not be worth the risk). The two produce
 different-looking errors and require different fixes; don't assume fixing
 one means GPU training is unblocked -- check that training actually
 proceeds, not just that the first error went away.
+
+## Update (October 2026): GPU XGBoost on V100 with a pinned version
+
+GPU training on the Tesla V100 (SM 70) nodes now works, in a separate
+project virtual environment (not the shared one), with **xgboost 3.0.5** and
+`cupy-cuda12x`. Versions 3.1.3, 3.2, 3.3 and 3.4.1 fail on V100 with
+`cudaErrorNoKernelImageForDevice`, which indicates their GPU builds lack SM 70
+kernels; 3.0.5 and 2.1.4 work. Keep xgboost pinned at 3.0.5 on these nodes.
